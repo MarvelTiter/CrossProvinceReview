@@ -1,0 +1,58 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.el-main {
+    padding: 10px;
+}
+
+.el-container {
+    height: 100%;
+}
+
+.el-header {
+    background-color: #545c64;
+    line-height: 60px;
+}
+
+.el-aside {
+    background-color: #545c64;
+}
+
+.el-card {
+    text-align: left;
+}
+
+.el-table {
+    margin-top: 15px;
+}
+
+.el-breadcrumb {
+    margin-bottom: 10px;
+}
+
+.el-pagination {
+    margin: 1em 0;
+}
+
+.el-message {
+    top: 10em;
+}
+
+@media screen and (max-width:768px) {
+    .el-breadcrumb {
+        display: none;
+    }
+}

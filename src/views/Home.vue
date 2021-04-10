@@ -8,15 +8,21 @@
 						{{ Title }}
 					</span>
 				</div>
+				<div class="container_header_middle">
+					<el-button v-for="(m,i) of MenuList" :key="i" :icon="m.icon" :title="m.name" :class="[{'meun-button':true,active:m.active}]" @click="NavHandle(m)"></el-button>
+				</div>
 				<div class="container_header_right">
+					<label>欢迎！{{ UserName }}</label>
 					<el-button class="shutdown-button" @click="Exit" icon="el-icon-switch-button" />
 				</div>
 			</el-header>
 			<el-container class="main-container">
 				<el-main class="main" ref="mainWindow">
-					<router-view></router-view>
+					<keep-alive>
+						<router-view></router-view>
+					</keep-alive>
 				</el-main>
-				<BottomNav />
+				<!-- <BottomNav /> -->
 				<el-backtop target=".el-main" style="bottom:80px;"> </el-backtop>
 			</el-container>
 		</el-container>
@@ -26,6 +32,7 @@
 <script>
 import BottomNav from '../components/BottomNavigation.vue'
 export default {
+	name: 'home',
 	data() {
 		return {}
 	},
@@ -34,7 +41,16 @@ export default {
 	},
 	computed: {
 		Title() {
-			return this.$store.state.HeaderTitle
+			return this.$store.state.Config.BasicInfo['Title']
+		},
+		MenuList() {
+			return this.$store.state.MenuList
+		},
+		UserName() {
+			return this.$store.state.CurrentUser['USR_NAME']
+		},
+		CacheList() {
+			return this.$store.state.CacheList
 		},
 	},
 	methods: {
@@ -42,21 +58,11 @@ export default {
 			this.$store.commit('UpdateToken', '')
 			this.$router.push('/login')
 		},
+		NavHandle(m) {
+			if (m.path) this.$router.push(m.path)
+		},
 	},
-	mounted() {
-		if (window.innerWidth > 1200) {
-			this.$store.commit('SetTabPosition', 'left')
-		} else {
-			this.$store.commit('SetTabPosition', 'top')
-		}
-		window.addEventListener('resize', () => {
-			if (window.innerWidth > 1200) {
-				this.$store.commit('SetTabPosition', 'left')
-			} else {
-				this.$store.commit('SetTabPosition', 'top')
-			}
-		})
-	},
+	mounted() {},
 }
 </script>
 
@@ -73,7 +79,7 @@ export default {
 			height: 100%;
 			width: 100%;
 			overflow-y: auto;
-			padding: 0; //0.5em;
+			padding: 0.5em;
 		}
 	}
 }
@@ -101,19 +107,37 @@ export default {
 			padding: 10px;
 		}
 	}
+	.container_header_middle {
+		margin-left: 20px;
+		display: flex;
+		.meun-button {
+			border: none;
+			background-color: #fff;
+			color: #fff;
+			background: transparent;
+			font-size: 1.8em;
+
+			&:hover,
+			&.active {
+				color: #409eff;
+			}
+		}
+	}
 	.container_header_right {
 		flex: 1;
 		display: -webkit-flex;
 		display: flex;
 		justify-content: flex-end;
+		color: #fff;
 		.shutdown-button {
 			border: none;
 			background-color: #fff;
 			color: #fff;
 			background: transparent;
 			font-size: 1.5em;
+			color: red;
 			&:hover {
-				color: rgba(37, 162, 219, 1);
+				color: rgb(160, 20, 20);
 			}
 		}
 	}

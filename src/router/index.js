@@ -4,75 +4,64 @@ import store from '../store'
 import login from '../views/Login.vue'
 import home from '../views/Home.vue'
 import UserManage from '../views/user/userManage.vue'
-import DetectMain from '../views/DetectMain.vue'
-import VehicleLogin from '../views/VehicleLogin.vue'
-import VehicleOnline from '../views/VehicleOnline.vue'
-import Setting from '../views/Setting.vue'
+import Welcome from '../views/Welcome.vue'
+import Collect from '../views/InfoCollect.vue'
+import Review from '../views/Review.vue'
+import Setting from '../views/Setting'
+import PhotoSetting from '../views/PhotoSetting'
 
 Vue.use(VueRouter)
 
 const routes = [
-    { path: '/', redirect: '/login' },
-    { path: '/login', component: login },
-    {
-        path: '/home',
-        component: home,
-        redirect: '/detect',
-        children: [
-            { path: '/users', component: UserManage, name: '用户管理' },
-            { path: '/detect', component: DetectMain, name: '车辆列表' },
-            { path: '/vehiclelogin', component: VehicleLogin, name: '车辆登录' },
-            { path: '/vehicleonline', component: VehicleOnline, name: '车辆上线' },
-            { path: '/setting', component: Setting, name: '系统设置' },
-            { path: '/appearance', component: Setting, name: '外观检验' },
-        ],
-    },
+	{ path: '/', redirect: '/login' },
+	{ path: '/login', component: login },
+	{
+		path: '/home',
+		component: home,
+		redirect: '/welcome',
+		name: 'home',
+		children: [
+			{ path: '/users', component: UserManage, name: 'user' },
+			{ path: '/welcome', component: Welcome, name: 'welcome' },
+			{ path: '/collect', component: Collect, name: 'collect' },
+			{ path: '/setting', component: Setting, name: 'setting' },
+		],
+	},
+	{ path: '/review', component: Review, name: 'review' },
 ]
 
 const router = new VueRouter({
-    mode: 'history',
-    base: process.env.BASE_URL,
-    routes,
+	mode: 'history',
+	base: process.env.BASE_URL,
+	routes,
 })
-const DefaultMenu = [
-    { Icon: 'el-icon-s-grid', path: '/detect' },
-    { Icon: 'el-icon-s-order', path: '/vehiclelogin' },
-    { Icon: 'el-icon-finished', path: '/vehicleonline' },
-    { Icon: 'el-icon-setting', path: '/setting' },
-]
+// const DefaultMenu = [
+//     { icon: 'el-icon-s-grid', path: '/detect' },
+//     { icon: 'el-icon-s-order', path: '/vehiclelogin' },
+//     { icon: 'el-icon-finished', path: '/vehicleonline' },
+// ]
 
-const ResetDefautMenu = {
-    '/home': true,
-    '/detect': true,
-}
+// const ResetDefautMenu = {
+//     '/home': true,
+// }
 router.beforeEach((to, from, next) => {
+	return next()
 
-    if (to.path === '/login') {
-        return next()
-    } else {
-        if (store.state.token === '') {
-            // return next('/login')
-        }
-    }
-    store.commit('SetActive', to.path)
+	if (to.path === '/login') {
+		store.commit('ClearCache')
+		return next()
+	} else {
+		if (store.state.token === '') {
+			return next('/login')
+		}
 
-    // title update
-    let name = ''
-    if (to.name === '') {
-        name = '欢迎！' + store.state.CurrentUser.USR_NAME
-    } else {
-        name = to.name
-    }
-    store.commit('SetTitle', name)
+		if (to.path === '/welcome' || to.path === '/home') {
+			store.commit('AddCache', 'home')
+		}
+	}
+	store.commit('SetActive', to.path)
 
-    // menu update
-    if (ResetDefautMenu[to.path]) {
-        store.commit('SetBottomMenu', DefaultMenu)
-        store.commit('UpdateBottomBackButton', false)
-    } else {
-        store.commit('UpdateBottomBackButton', true)
-    }
-    next()
+	next()
 })
 
 export default router

@@ -1,5 +1,5 @@
 <template>
-	<div class="view-wrapper" v-loading="loginFlag">
+	<div class="view-wrapper">
 		<div class="form-wrapper">
 			<div class="header">
 				机动车检验
@@ -14,7 +14,9 @@
 			</div>
 			<div class="action">
 				<div class="btn" @click="Login">
-					登录
+					<div v-loading="loginFlag" element-loading-background="rgba(0, 0, 0, 0.8)">
+						<span>登录</span>
+					</div>
 				</div>
 			</div>
 			<div class="icon-wrapper">
@@ -37,41 +39,32 @@ export default {
 			loginFlag: false,
 		}
 	},
+	computed: {
+		Api() {
+			return this.$store.state.Config.Api
+		},
+	},
 	methods: {
-		Login() {
+		async Login() {
+			if (this.loginFlag) {
+				return
+			}
 			this.loginFlag = true
-			// var ret = this.$http.get('/login', {
-			// 	params: this.loginForm,
-			// })
-			// ret.then(response => {
-			// 	this.loginFlag = false
-			// 	if (response.status === 200) {
-			// 		this.$store.commit(
-			// 			'UpdateToken',
-			// 			response.data.AuthorizationToken,
-			// 		)
-			// 		this.$store.commit('SetUser', response.data.User)
-			// 		this.$router.push('/home')
-			// 	}
-			// }).catch(error => {
-			// 	this.loginFlag = false
-			// 	if (error.response.status === 404) {
-			// 		var msg = error.response.data
-			// 		this.$message.error(msg)
-			// 	}
-			// })
-			this.$router.push('/home')
+			try {
+				var ret = await this.$http.get(this.Api.Login, {
+					params: this.loginForm,
+				})
+				if (ret.status === 200) {
+					this.$store.commit('SetUser', ret.data.User)
+					this.$store.commit('UpdateToken', ret.data.Token)
+					this.$router.push('/home')
+				}
+			} catch (error) {}
 			this.loginFlag = false
 		},
 	},
 	mounted() {
-		// window.addEventListener('keydown', e => {
-		// 	var input = e.keyCode
-		// 	console.log(input)
-		// 	if (input === 13) {
-		// 		this.Login()
-		// 	}
-		// })
+		this.$eventHub.Register('Enter', this.$route.path, this.Login)
 	},
 }
 </script>
@@ -167,6 +160,7 @@ export default {
 				border-radius: 30px;
 				cursor: pointer;
 				transition: 0.2s;
+				overflow: hidden;
 				&:hover {
 					background-color: rgba(41, 45, 62, 0.7);
 					color: rgba(0, 0, 255, 0.7);

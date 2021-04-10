@@ -1,9 +1,9 @@
 <template>
 	<div>
-		<el-breadcrumb separator-class="el-icon-arrow-right">
+		<!-- <el-breadcrumb separator-class="el-icon-arrow-right">
 			<el-breadcrumb-item :to="{ path: '/welcome' }">首页</el-breadcrumb-item>
 			<el-breadcrumb-item>用户管理</el-breadcrumb-item>
-		</el-breadcrumb>
+		</el-breadcrumb> -->
 		<el-card>
 			<el-row :gutter="10">
 				<el-col :xs="7" :sm="7" :md="6" :lg="4">
@@ -34,8 +34,7 @@
 					</el-button>
 				</el-col>
 			</el-row>
-			<el-pagination @size-change="PageSizeChange" @current-change="PageIndexChange" :current-page="queryObject.PageIndex" :page-sizes="[10, 20, 30, 40]" :page-size="queryObject.PageSize" layout="total, sizes, prev, next, jumper" :total="responObject.TotalCount"></el-pagination>
-			<ResponsiveTable :columns="[
+			<!-- <ResponsiveTable :columns="[
 					{
 						Label: '用户账号',
 						Prop: 'USR_ID',
@@ -69,7 +68,11 @@
 						ResponsiveClass: 'hidden-sm-only'
 					},
 				]" :data="responObject.UserList" :checkbox="true" @rowclick="Edit" :selection-change="TableSelectionChange" text-align="center">
-			</ResponsiveTable>
+			</ResponsiveTable> -->
+		</el-card>
+		<el-card style="margin-top:10px;">
+			<el-pagination @size-change="PageSizeChange" @current-change="PageIndexChange" :current-page="queryObject.PageIndex" :page-sizes="[10, 20, 30, 40]" :page-size="queryObject.PageSize" layout="total, sizes, prev, next, jumper" :total="responObject.TotalCount"></el-pagination>
+
 		</el-card>
 		<el-dialog :title="formTitle" :width="WinSize.Width" :visible="UserFormVisiable" :show-close="false" :fullscreen="WinSize.FullScreen">
 			<el-form :model="currentUser" ref="UserForm" label-width="100px">

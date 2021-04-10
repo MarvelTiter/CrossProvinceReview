@@ -1,3 +1,20 @@
 {
-    "baseUrl": "http://192.168.43.241:8088/api"
+    "BasicInfo": {
+        "BaseUrl": "http://localhost:5000/api",
+        "Title": "资料采集终端",
+        "FZJG": "粤A"
+    },
+    "Api": {
+        "Login": "/user/login",
+        "JobList": "/job/list",
+        "Review": "/job/review",
+        "FileList": "/job/files",
+        "Reject": "/job/review/reason",
+        "Setting": {
+            "Bussiness": "/setting/bussiness",
+            "InspectType": "/setting/inspect",
+            "Photos": "/setting/photos"
+        }
+    }
+
 }

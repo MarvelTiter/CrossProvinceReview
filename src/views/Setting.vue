@@ -1,61 +1,44 @@
 <template>
-	<div class="wrap">
-		<el-card>
-			<el-row :gutter="5">
-				<el-col>
-					<el-input>
-						<template slot="prepend">作业列表显示数量</template>
-					</el-input>
-				</el-col>
-				<el-col>
-					<el-input>
-						<template slot="prepend">查验列表显示数量</template>
-					</el-input>
-				</el-col>
-				<el-col>
-					<el-input>
-						<template slot="prepend">车牌前缀</template>
-					</el-input>
-				</el-col>
-				<el-col>
-					<prepend-select>
-						号牌种类
-					</prepend-select>
-				</el-col>
-			</el-row>
-		</el-card>
+	<div class="setting">
+		<el-tabs v-model="activeName" @tab-click="tabClick">
+			<el-tab-pane label="照片设置" name="photosetting" lazy>
+				<photo-setting></photo-setting>
+			</el-tab-pane>
+            <el-tab-pane label="其他" lazy>待处理</el-tab-pane>
+		</el-tabs>
+		<!-- <router-view></router-view> -->
 	</div>
 </template>
 
 <script>
-import PrependSelect from '../components/PrependSelect.vue'
+import PhotoSetting from '../views/PhotoSetting'
 export default {
 	data() {
-		return {}
+		return {
+			activeName: 'photosetting',
+		}
+	},
+	computed: {},
+	components: {
+		PhotoSetting,
 	},
 	methods: {
-		Test() {
-			this.$message.success('Save')
+		tabClick(e) {
+			if (e.loaded) {
+				return
+			}
+
+			// this.$router.push(e.name)
 		},
 	},
-	components: {
-		PrependSelect,
-	},
-	mounted() {
-		var menulist = [
-			{ Label: '保存', Icon: 'el-icon-document', Func: this.Test },
-		]
-		this.$store.commit('SetBottomMenu', menulist)
-	},
+	async mounted() {},
 }
 </script>
 <style scoped lang="scss">
-.wrap {
-	.el-card {
-		margin: 0.5em;
-	}
-	.el-col {
-		margin: 0.2em 0;
+.setting {
+	height: 100%;
+	.el-tabs /deep/ {
+		height: 100%;
 	}
 }
 </style>

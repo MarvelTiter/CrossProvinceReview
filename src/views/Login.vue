@@ -1,9 +1,9 @@
 <template>
 	<div class="view-wrapper">
+		<div class="header">
+			跨省通办车管业务系统
+		</div>
 		<div class="form-wrapper">
-			<div class="header">
-				机动车检验
-			</div>
 			<div class="input-wrapper">
 				<div class="border-wrapper">
 					<input type="text" v-model="loginForm.UserName" name="username" placeholder="用户名" class="border-item">
@@ -20,11 +20,10 @@
 				</div>
 			</div>
 			<div class="icon-wrapper">
-				<i class="el-icon-setting"></i>
-				<i class="el-icon-edit"></i>
+				<!-- <i class="el-icon-setting"></i>
+				<i class="el-icon-edit"></i> -->
 			</div>
 		</div>
-
 	</div>
 </template>
 
@@ -54,9 +53,9 @@ export default {
 				var ret = await this.$http.get(this.Api.Login, {
 					params: this.loginForm,
 				})
-				if (ret.status === 200) {
-					this.$store.commit('SetUser', ret.data.User)
-					this.$store.commit('UpdateToken', ret.data.Token)
+				if (ret.data.status === 'Success') {
+					this.$store.commit('SetUser', ret.data.value.User)
+					this.$store.commit('UpdateToken', ret.data.value.Token)
 					this.$router.push('/home')
 				}
 			} catch (error) {}
@@ -78,12 +77,38 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	flex-direction: column;
 	background-image: url('../assets/banner_bg.jpg');
+	// &::before {
+	// 	content: '';
+	// 	top: 0;
+	// 	right: 0;
+	// 	bottom: 0;
+	// 	left: 0;
+	// 	-webkit-filter: blur(10em);
+	// 	-moz-filter: blur(10em);
+	// 	-ms-filter: blur(10em);
+	// 	-o-filter: blur(10em);
+	// 	filter: blur(10em);
+	// 	position: absolute;
+	// 	z-index: -1;
+	// 	background: rgba(255, 255, 255, 0.5);
+	// }
 	.form-cover {
 		width: 40%;
 	}
+	.header {
+		text-align: center;
+		font-size: 60px;
+		text-transform: uppercase;
+		font-weight: bold;
+		text-shadow: 2px 2px #00000055;
+		line-height: 100px;
+		margin-bottom: 40px;
+		color: #1c1e20;
+	}
 	.form-wrapper {
-		width: 40%;
+		width: 30%;
 		color: #000;
 		border-radius: 2px;
 		padding: 50px;
@@ -95,27 +120,7 @@ export default {
 		@media screen and (min-width: 1200px) {
 			width: 30%;
 		}
-		&::before {
-			content: '';
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			-webkit-filter: blur(10em);
-			-moz-filter: blur(10em);
-			-ms-filter: blur(10em);
-			-o-filter: blur(10em);
-			filter: blur(10em);
-			position: absolute;
-			z-index: -1;
-			background: rgba(255, 255, 255, 0.5);
-		}
-		.header {
-			text-align: center;
-			font-size: 35px;
-			text-transform: uppercase;
-			line-height: 100px;
-		}
+
 		.input-wrapper {
 			.border-wrapper {
 				background-image: linear-gradient(to right, #e8198b, #0eb4dd);
@@ -151,19 +156,20 @@ export default {
 			font-weight: bold;
 			font-size: 1.6em;
 			.btn {
-				width: 60%;
+				width: 40%;
 				text-transform: uppercase;
 				border: 2px solid rgba(41, 45, 62, 1);
-				background-color: rgba(41, 45, 62, 0.2);
+				background-color: rgba(41, 45, 62, 0.5);
 				text-align: center;
 				line-height: 50px;
 				border-radius: 30px;
 				cursor: pointer;
 				transition: 0.2s;
 				overflow: hidden;
+				color: white;
 				&:hover {
 					background-color: rgba(41, 45, 62, 0.7);
-					color: rgba(0, 0, 255, 0.7);
+					color: rgba(255, 255, 255, 0.7);
 				}
 				&:visited {
 					color: red;

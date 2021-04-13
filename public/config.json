@@ -1,20 +1,21 @@
 {
     "BasicInfo": {
         "BaseUrl": "http://localhost:5000/api",
-        "Title": "资料采集终端",
+        "Title": "跨省通办车管业务系统",
         "FZJG": "粤A"
     },
     "Api": {
-        "Login": "/user/login",
+        "Login": "/login",
         "JobList": "/job/list",
         "Review": "/job/review",
         "FileList": "/job/files",
         "Reject": "/job/review/reason",
-        "Setting": {
-            "Bussiness": "/setting/bussiness",
-            "InspectType": "/setting/inspect",
-            "Photos": "/setting/photos"
-        }
+        "Auto": "/job/auto",
+        "CompleteReview": "/job/finish",
+        "Bussiness": "/setting/bussiness",
+        "BussinessReason": "/setting/bussinessreason",
+        "Mapping": "/setting/mapping",
+        "Users": "/user"
     }
 
 }

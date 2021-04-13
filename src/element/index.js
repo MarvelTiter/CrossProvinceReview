@@ -41,6 +41,7 @@ import {
 	Tabs,
 	TabPane,
 	Image,
+	Transfer
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'element-ui/lib/theme-chalk/display.css'
@@ -86,3 +87,4 @@ Vue.use(Drawer)
 Vue.use(Tabs)
 Vue.use(TabPane)
 Vue.use(Image)
+Vue.use(Transfer)

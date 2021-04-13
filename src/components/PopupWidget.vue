@@ -2,11 +2,9 @@
 	<div class="mt-popup-widget" :class="{visible:show}" :style="style" ref="widget">
 		<div class="header">
 			<slot name="header"></slot>
+			<label :class="{'close-button':true,'close-visible':showButton}" type="text" @click="show=false">X</label>
 		</div>
 		<slot></slot>
-		<div :class="{bottom:true,visible:showButton}">
-			<label type="text" @click="show=false">关闭</label>
-		</div>
 	</div>
 </template>
 
@@ -18,7 +16,10 @@ export default {
 		position: {
 			type: String,
 		},
-		showButton: Boolean,
+		showButton: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	data() {
 		return {
@@ -78,7 +79,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .mt-popup-widget {
-	position: absolute;
+	position: fixed;
 	transition: all 0.3s;
 	z-index: 9999;
 	padding: 10px 20px 20px 20px;
@@ -103,19 +104,23 @@ export default {
 	.header {
 		padding: 0 10px 10px 10px;
 		text-align: left;
+		* {
+			display: inline-block;
+		}
+		.close-button {
+			display: none;
+			&:hover {
+				cursor: pointer;
+				color: #409eff;
+			}
+		}
+		.close-visible {
+			display: block;
+			float: right;
+		}
 	}
 	&.visible {
 		display: block;
-	}
-	.bottom {
-		text-align: right;
-		margin-top: 10px;
-		label {
-			&:hover {
-				color: #409eff;
-				cursor: pointer;
-			}
-		}
 	}
 }
 </style>

@@ -7,8 +7,7 @@ import UserManage from '../views/user/userManage.vue'
 import Welcome from '../views/Welcome.vue'
 import Collect from '../views/InfoCollect.vue'
 import Review from '../views/Review.vue'
-import Setting from '../views/Setting'
-import PhotoSetting from '../views/PhotoSetting'
+import Setting from '../views/setting/Setting'
 
 Vue.use(VueRouter)
 
@@ -45,8 +44,6 @@ const router = new VueRouter({
 //     '/home': true,
 // }
 router.beforeEach((to, from, next) => {
-	return next()
-
 	if (to.path === '/login') {
 		store.commit('ClearCache')
 		return next()

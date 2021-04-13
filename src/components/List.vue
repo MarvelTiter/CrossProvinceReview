@@ -2,7 +2,9 @@
 	<div class="list">
 		<ul>
 			<li v-for="(o,k) of source" :key="k" @click.stop="handleClick(o,k)" :class="{selected:o[IsSelected]}">
-				<span>{{ o[displayMember] }}</span>
+				<slot :obj="o">
+					<span>{{ o[displayMember] }}</span>
+				</slot>
 			</li>
 			<label v-if="!source || source.length === 0">暂无数据</label>
 		</ul>
@@ -59,19 +61,28 @@ export default {
 	ul {
 		list-style: none;
 		li {
-			padding: 10px 20px;
-			background-color: #dcdfe6;
+			padding: 10px 35px 10px 20px;
+			background-color: rgba(0, 0, 0, 0.1);
 			// box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 			border: 1px solid rgba(0, 0, 0, 0.1);
 			position: relative;
+			border-radius: 5px;
+			margin: 2px 0;
+			text-align: left;
 			&:nth-child(2n) {
 				background-color: #fff;
 			}
 			&:hover {
-				cursor: pointer;
-				background-color: rgba(0, 0, 0, 0.1);
+				background-color: #dcdfe6;
 			}
-			span {
+			span,
+			p,
+			h1,
+			h2,
+			h3,
+			h4,
+			h5,
+			h6 {
 				display: inline-block;
 				vertical-align: middle;
 			}
@@ -89,6 +100,8 @@ export default {
 					border-bottom-color: transparent;
 					border-left-width: 20px;
 					right: 0;
+					top: 50%;
+					transform: translateY(-50%);
 				}
 			}
 		}

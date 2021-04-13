@@ -2,7 +2,7 @@
 	<div class="wrap">
 		<div class="back">
 			<i class="el-icon-back" @click="GoBack"></i>
-			<span>审核信息:{{ Job.JOB_PLATE }}</span>
+			<span>审核信息:{{ Job.JOB_PLATE }}({{ Job.JOB_PCLASS }})</span>
 		</div>
 		<div class="region left">
 			<el-card>
@@ -13,7 +13,7 @@
 					</h3>
 				</template>
 				<div v-loading="CarInfoLoading">
-
+					<auto-info :auto="AutoInfo.Auto" :propLabel="AutoInfo.Labels"></auto-info>
 				</div>
 			</el-card>
 		</div>
@@ -23,6 +23,9 @@
 					<h3>
 						<i class="el-icon-picture" style="color:#409eff"></i>&nbsp;
 						<span>照片审核</span>
+						<div style="display: inline-block;right: 20px;top: 10px;position: absolute;">
+							<el-button type="primary" @click="CompleteReview">完成审核</el-button>
+						</div>
 					</h3>
 				</template>
 				<div v-loading="FileLoading" class="image_container">
@@ -71,15 +74,20 @@
 <script>
 import MtImagePreview from '../components/MtImagePreview'
 import MtPopupWidget from '../components/PopupWidget'
+import AutoInfo from '../views/partialView/AutoInfo'
 export default {
 	data() {
 		return {
-			CarInfoLoading: true,
-			FileLoading: true,
+			CarInfoLoading: false,
+			FileLoading: false,
 			Showing: false,
 			widgetShow: false,
 			ShowIndex: 0,
-			FileList: [],
+			AutoInfo: {
+				Auto: {},
+				Labels: {},
+			},
+			FileList: [{ JFL_OK: 1 }],
 			RejectReason: ['理由1', '理由2', '理由3'],
 			currentRemark: '',
 		}
@@ -104,6 +112,7 @@ export default {
 	components: {
 		MtImagePreview,
 		MtPopupWidget,
+		AutoInfo,
 	},
 	methods: {
 		GoBack() {
@@ -120,48 +129,99 @@ export default {
 			var img = this.FileList[this.ShowIndex]
 			this.currentRemark = img.JFL_REMARK
 		},
-		LoadCarInfo() {},
+		// Api.Auto
+		async LoadCarInfo() {
+			this.CarInfoLoading = true
+			var auto = await this.$http.get(this.Api.Auto, {
+				params: {
+					Plate: this.Job.JOB_PLATE,
+					PClass: this.Job.JOB_PCLASS,
+				},
+			})
+			this.CarInfoLoading = false
+			if (auto.data.status === 'Success') {
+				this.AutoInfo.Auto = auto.data.value.Auto
+				this.AutoInfo.Labels = auto.data.value.Labels
+			} else {
+				this.$message.error(auto.data.value)
+			}
+		},
+		// Api.FileList
 		async LoadFiles() {
+			this.FileLoading = true
 			var files = await this.$http.get(this.Api.FileList, {
 				params: {
 					JOB_ID: this.Job.JOB_ID,
 				},
 			})
-			if (files.status === 200) {
-				for (const e of files.data) {
+			this.FileLoading = false
+			if (files.data.status === 'Success') {
+				for (const e of files.data.value) {
 					e.FLT_FILE = 'data:image/jpeg;base64,' + e.FLT_FILE
+					if (!e.JFL_OK && e.JFL_OK !== 0) e.JFL_OK = 1
 				}
-				this.FileList = files.data
-				this.FileLoading = false
+				this.FileList = files.data.value
 			}
 		},
 		Judge(key) {
+			this.ShowIndex = key
 			var img = this.FileList[key]
 			img.JFL_OK = (img.JFL_OK + 1) % 2
 			if (img.JFL_OK == 0) this.widgetShow = true
-			if (img.JFL_OK == 1) img.JFL_REMARK = ''
-			this.ShowIndex = key
+			if (img.JFL_OK == 1) {
+				img.JFL_REMARK = ''
+				this.Save()
+			}
 		},
 		handleReject(remark) {
 			if (remark) this.currentRemark = remark
-			this.widgetShow = false
-			this.Save()
+			this.$nextTick(() => {
+				this.Save()
+			})
 		},
+		// Api.Review
 		async Save() {
 			var img = this.FileList[this.ShowIndex]
+			var bak_ok = img.JFL_OK
+			var bak_remark = img.JFL_REMARK
 			var result = await this.$http.put(this.Api.Review, {
 				FLT_ID: img.FLT_ID,
 				JFL_OK: img.JFL_OK,
 				JFL_REMARK: img.JFL_REMARK,
 				JOB_ID: img.JOB_ID,
 			})
-			if (result.status === 200) {
-				this.$message.success(result.data)
+			if (result.data.status === 'Success') {
+				this.$message.success(result.data.value)
+			} else {
+				this.$message.error(result.data.value)
+				img.JFL_OK = bak_ok
+				img.JFL_REMARK = bak_remark
+			}
+			this.widgetShow = false
+		},
+		// Api.CompleteReview
+		async CompleteReview() {
+			var jobState = 0
+			for (const e of this.FileList) {
+				if (e.JFL_OK === 0) {
+					jobState = 31
+					break
+				}
+			}
+			var result = await this.$http.put(this.Api.CompleteReview, {
+				JOB_ID: this.Job.JOB_ID,
+				JOB_STATE: jobState,
+			})
+			if (result.data.status === 'Success') {
+				this.$message.success(result.data.value)
+			} else {
+				this.$message.error(result.data.value)
 			}
 		},
 	},
 	mounted() {
 		this.LoadFiles()
+		this.LoadCarInfo()
 	},
 }
 </script>

@@ -1,13 +1,6 @@
 <template>
 	<div class="wrap">
 		<el-card class="query">
-
-			<!-- 
-                流水号，部门机构，检验类别（注册登记。。），
-                号牌种类，号牌号码，车架号
-                开始时间，结束时间，外观审核标记
-                车辆类型，流水状态，机动车信息获取标记
-             -->
 			<template v-slot:header>
 				<h3>
 					<i class="el-icon-search" style="color:#409eff"></i>&nbsp;
@@ -16,8 +9,7 @@
 			</template>
 			<table>
 				<tr>
-
-					<td class="query_left"><label>检验开始时间</label></td>
+					<td class="query_left"><label>开始时间</label></td>
 					<td class="query_right">
 						<el-date-picker v-model="queryObject.KSSJ"></el-date-picker>
 					</td>
@@ -33,12 +25,9 @@
 					<td class="query_right">
 						<el-select filterable v-model="queryObject.LSZT"></el-select>
 					</td>
-					<td rowspan="4">
-						<el-button type="primary" @click="Query">查询(Enter)</el-button>
-					</td>
 				</tr>
 				<tr>
-					<td class="query_left"><label>检验结束时间</label></td>
+					<td class="query_left"><label>结束时间</label></td>
 					<td class="query_right">
 						<el-date-picker v-model="queryObject.JSSJ"></el-date-picker>
 					</td>
@@ -59,6 +48,11 @@
 						<el-input v-model="queryObject.CLSBDH"></el-input>
 					</td>
 				</tr>
+				<tr>
+					<td colspan="8" style="text-align:right">
+						<el-button type="primary" @click="Query">查询(Enter)</el-button>
+					</td>
+				</tr>
 			</table>
 		</el-card>
 		<el-card style="margin-top:10px;">
@@ -68,19 +62,18 @@
 					<span>车辆检验流水列表</span>
 				</h3>
 			</template>
-			<el-table :data="JobList" @row-dblclick="RowClick">
+			<el-table :data="resValue.JobList" @row-dblclick="RowClick">
 				<el-table-column label="作业ID" prop="JOB_ID"></el-table-column>
 				<el-table-column label="检验流水号" prop="JOB_SN"></el-table-column>
 				<el-table-column label="机构名称" prop="STN_ID"></el-table-column>
-				<el-table-column label="检验类别" prop=""></el-table-column>
+				<el-table-column label="检验类别" prop="BNS_ID"></el-table-column>
 				<el-table-column label="号牌号码" prop="JOB_PLATE"></el-table-column>
-				<el-table-column label="车辆识别代号" prop=""></el-table-column>
-				<el-table-column label="检验日期" prop="JOB_DATE"></el-table-column>
-				<el-table-column label="检验次数" prop=""></el-table-column>
-				<el-table-column label="申请审核时间" prop=""></el-table-column>
-				<el-table-column label="审核次数" prop=""></el-table-column>
+				<el-table-column label="号牌种类" prop="JOB_PCLASS"></el-table-column>
+				<el-table-column label="车辆识别代号" prop="CLSBDH"></el-table-column>
+				<el-table-column label="作业时间" prop="JOB_DATE"></el-table-column>
 				<el-table-column label="流水状态" prop="JOB_STATE"></el-table-column>
 			</el-table>
+			<el-pagination :page-size="queryObject.PageSize" :total="resValue.TotalCount" @current-change="PageIndexChange" :current-page="queryObject.PageIndex" layout="total, prev, next, jumper"></el-pagination>
 		</el-card>
 	</div>
 </template>
@@ -95,8 +88,17 @@ export default {
 				PageSize: 10,
 				HPHM: '',
 				HPZL: '',
+				KSSJ: new Date(),
+				JSSJ: new Date(),
+				JYLSH: '',
+				JYLB: '',
+				CLSBDH: '',
+				LSZT: '',
 			},
-			JobList: [],
+			resValue: {
+				TotalCount: 0,
+				JobList: [],
+			},
 			PrePlate: '粤',
 		}
 	},
@@ -117,13 +119,18 @@ export default {
 			var ret = await this.$http.get(this.Api.JobList, {
 				params: this.queryObject,
 			})
-			if (ret.status === 200) {
-				this.JobList = ret.data
+			if (ret.data.status === 'Success') {
+				this.resValue.JobList = ret.data.value.DataList
+				this.resValue.TotalCount = ret.data.value.TotalCount
 			}
 		},
 		RowClick(row, col, e) {
 			this.$store.commit('SetJob', row)
 			this.$router.push('/review')
+		},
+		PageIndexChange(index) {
+			this.queryObject.PageIndex = index
+			this.Query()
 		},
 	},
 	mounted() {

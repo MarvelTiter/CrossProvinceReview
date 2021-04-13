@@ -91,8 +91,8 @@ export default {
 		},
 		Scale: function(e) {
 			var img = this.$refs['ImgBoard']
-			var w = img.height
-			this.Size.Height = (1 + e.wheelDelta / 1200) * w + 'px'
+			var h = img.height
+			this.Size.Height = (1 + e.wheelDelta / 1200) * h + 'px'
 		},
 		drag: function(e) {
 			var img = this.$refs['ImgBoard']
@@ -131,6 +131,13 @@ export default {
 	bottom: 0;
 	background-color: rgba(0, 0, 0, 0.3);
 	z-index: 1999;
+	* {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+		-khtml-user-select: none;
+		user-select: none;
+	}
 }
 
 .mt-image-preview {

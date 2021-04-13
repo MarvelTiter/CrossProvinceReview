@@ -6,14 +6,14 @@
 		</el-breadcrumb> -->
 		<el-card>
 			<el-row :gutter="10">
-				<el-col :xs="7" :sm="7" :md="6" :lg="4">
+				<!-- <el-col :xs="7" :sm="7" :md="6" :lg="4">
 					<el-select v-model="queryObject.StnId" clearable filterable placeholder="检测机构">
 						<el-option v-for="item in responObject.StnList" :key="item.Value" :label="item.Display" :value="item.Value">
 						</el-option>
 					</el-select>
-				</el-col>
+				</el-col> -->
 				<el-col :xs="7" :sm="7" :md="6" :lg="4">
-					<el-input placeholder="搜索用户名" v-model="queryObject.UserName"></el-input>
+					<el-input placeholder="搜索用户名" v-model="queryObject.KeyWord"></el-input>
 				</el-col>
 				<el-col :xs="7" :sm="7" :md="6" :lg="4">
 					<el-select v-model="queryObject.Enabled" clearable placeholder="是否启用">
@@ -34,45 +34,17 @@
 					</el-button>
 				</el-col>
 			</el-row>
-			<!-- <ResponsiveTable :columns="[
-					{
-						Label: '用户账号',
-						Prop: 'USR_ID',
-						ResponsiveClass: ''
-					},
-					{
-						Label: '用户名称',
-						Prop: 'USR_NAME',
-						ResponsiveClass: ''
-					},
-					{
-						Label: '身份证号',
-						Prop: 'USR_IDENTITY',
-						ResponsiveClass: 'hidden-sm-only'
-					},
-					{
-						Label: '是否启用',
-						Prop: 'USR_ENABLE',
-						ResponsiveClass: '',
-						Formatter: function(v) {
-							if (v === 1) {
-								return '是'
-							} else {
-								return '否'
-							}
-						}
-					},
-					{
-						Label: '检测站',
-						Prop: 'STN_ID',
-						ResponsiveClass: 'hidden-sm-only'
-					},
-				]" :data="responObject.UserList" :checkbox="true" @rowclick="Edit" :selection-change="TableSelectionChange" text-align="center">
-			</ResponsiveTable> -->
 		</el-card>
 		<el-card style="margin-top:10px;">
+			<el-table :data="responObject.UserList" @row-dblclick="Edit">
+				<el-table-column label="用户账号" prop="USR_ID"></el-table-column>
+				<el-table-column label="用户名称" prop="USR_NAME"></el-table-column>
+				<el-table-column label="身份证号" prop="USR_IDENTITY"></el-table-column>
+				<el-table-column label="是否启用" prop="USR_ENABLE"></el-table-column>
+				<el-table-column label="用户有效期" prop="USR_DEADLINE"></el-table-column>
+				<el-table-column label="密码有效期" prop="PSW_DEADLINE"></el-table-column>
+			</el-table>
 			<el-pagination @size-change="PageSizeChange" @current-change="PageIndexChange" :current-page="queryObject.PageIndex" :page-sizes="[10, 20, 30, 40]" :page-size="queryObject.PageSize" layout="total, sizes, prev, next, jumper" :total="responObject.TotalCount"></el-pagination>
-
 		</el-card>
 		<el-dialog :title="formTitle" :width="WinSize.Width" :visible="UserFormVisiable" :show-close="false" :fullscreen="WinSize.FullScreen">
 			<el-form :model="currentUser" ref="UserForm" label-width="100px">
@@ -144,12 +116,10 @@
 					</el-col>
 				</el-row>
 				<el-row>
-					<el-col :span="12">
+					<div style="text-align:center;">
 						<el-button type="primary" @click="Save">保存</el-button>
-					</el-col>
-					<el-col :span="12">
 						<el-button type="primary" @click="UserFormVisiable = false">关闭</el-button>
-					</el-col>
+					</div>
 				</el-row>
 			</el-form>
 		</el-dialog>
@@ -158,14 +128,11 @@
 
 <script>
 import Common from '../../plugins/common.js'
-import ResponsiveTable from '../../components/ResponsiveTable.vue'
 export default {
 	data() {
 		return {
 			queryObject: {
-				UserName: '',
-				StnId: '',
-				Enabled: '',
+				KeyWord: '',
 				PageIndex: 1,
 				PageSize: 10,
 			},
@@ -187,18 +154,21 @@ export default {
 			},
 		}
 	},
-	components: {
-		ResponsiveTable,
+	components: {},
+	computed: {
+		Api() {
+			return this.$store.state.Config.Api
+		},
 	},
 	methods: {
-		Search: function() {
-			var ret = this.$http.get('/user', {
+		async Search() {
+			var result = await this.$http.get(this.Api.Users, {
 				params: this.queryObject,
 			})
-			ret.then(response => {
-				this.responObject.TotalCount = response.data.TotalCount
-				this.responObject.UserList = response.data.DataList
-			})
+			if (result.status === 200) {
+				this.responObject.TotalCount = result.data.value.TotalCount
+				this.responObject.UserList = result.data.value.DataList
+			}
 		},
 		PageIndexChange: function(v) {
 			this.queryObject.PageIndex = v
@@ -245,23 +215,29 @@ export default {
 				this.BatchHandler('Delete')
 			}
 		},
-		Save: function() {
+		async Save() {
 			var ret = null
 			if (this.EditMode) {
-				ret = this.$http.put('/user', this.currentUser)
+				ret = await this.$http.put(
+					this.Api.Users,
+					this.currentUser,
+				)
 			} else {
-				ret = this.$http.post('/user', this.currentUser)
+				ret = await this.$http.post(
+					this.Api.Users,
+					this.currentUser,
+				)
 			}
-			ret.then(response => {
-				var msg = response.data.Msg
-				if (response.data.Code === 1) {
+			if (ret.status === 200) {
+				var msg = ret.data.Msg
+				if (ret.data.Code === 1) {
 					this.$message.success(msg)
 					this.UserFormVisiable = false
 					this.Search()
 				} else {
 					this.$message.error(msg)
 				}
-			})
+			}
 		},
 		Extend: function(u) {
 			if (u !== 0) {
@@ -312,23 +288,18 @@ export default {
 				this.WinSize.Width = '70%'
 				this.WinSize.FullScreen = false
 			} else {
-				this.WinSize.Width = '60%'
+				this.WinSize.Width = '50%'
 				this.WinSize.FullScreen = false
 			}
 		},
 	},
 	mounted() {
-		var g = this.$http.get('/options/groups')
-		var s = this.$http.get('/options/stations')
-		g.then(response => {
-			this.responObject.GroupList = response.data.Options
-		})
-		s.then(response => {
-			this.responObject.StnList = response.data.Options
-		})
 		this.Search()
 		this.WindowResize()
 		window.addEventListener('resize', this.WindowResize)
+
+		// 注册按钮事件
+		this.$eventHub.Register('Enter', this.$route.path, this.Search)
 	},
 }
 </script>

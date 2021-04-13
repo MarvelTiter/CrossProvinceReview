@@ -21,10 +21,10 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
 	function(response) {
-		if (response.data.Code) {
-			var code = response.data.Code
-			if (code === -1) {
-				Message.error(response.data.Msg)
+		if (response.status === 200) {
+			var d = response.data
+			if (d.status == 'Fail') {
+				Message.error(response.data.value)
 			}
 		}
 		return response
@@ -32,6 +32,8 @@ axios.interceptors.response.use(
 	function(error) {
 		var status = (error.response && error.response.status) || 'unknow'
 		var msg = error.message || ''
+		if (status === 401) msg = '登录过期，请重新登录'
+		else if (status === 403) msg = '无权限访问资源'
 		Message.error(`请求状态[${status}] : ${msg}`)
 		// if (error.response.status === 500) {
 		// 	Message.error('请求资源出错')
